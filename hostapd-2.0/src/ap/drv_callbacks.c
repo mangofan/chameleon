@@ -58,7 +58,8 @@ int hostapd_notif_assoc(struct hostapd_data *hapd, const u8 *addr,
 	u16 reason = WLAN_REASON_UNSPECIFIED;
 	u16 status = WLAN_STATUS_SUCCESS;
 
-	if (addr == NULL) {
+	if (addr == NULL) 
+    {
 		/*
 		 * This could potentially happen with unexpected event from the
 		 * driver wrapper. This was seen at least in one case where the
@@ -76,19 +77,26 @@ int hostapd_notif_assoc(struct hostapd_data *hapd, const u8 *addr,
 		       HOSTAPD_LEVEL_INFO, "associated");
 
 	ieee802_11_parse_elems(req_ies, req_ies_len, &elems, 0);
-	if (elems.wps_ie) {
+	if (elems.wps_ie) 
+    {
 		ie = elems.wps_ie - 2;
 		ielen = elems.wps_ie_len + 2;
 		wpa_printf(MSG_DEBUG, "STA included WPS IE in (Re)AssocReq");
-	} else if (elems.rsn_ie) {
+	} 
+    else if (elems.rsn_ie) 
+    {
 		ie = elems.rsn_ie - 2;
 		ielen = elems.rsn_ie_len + 2;
 		wpa_printf(MSG_DEBUG, "STA included RSN IE in (Re)AssocReq");
-	} else if (elems.wpa_ie) {
+	} 
+    else if (elems.wpa_ie) 
+    {
 		ie = elems.wpa_ie - 2;
 		ielen = elems.wpa_ie_len + 2;
 		wpa_printf(MSG_DEBUG, "STA included WPA IE in (Re)AssocReq");
-	} else {
+	} 
+    else 
+    {
 		ie = NULL;
 		ielen = 0;
 		wpa_printf(MSG_DEBUG, "STA did not include WPS/RSN/WPA IE in "
@@ -104,9 +112,12 @@ int hostapd_notif_assoc(struct hostapd_data *hapd, const u8 *addr,
 		 * will not remove the STA immediately.
 		 */
 		sta->timeout_next = STA_NULLFUNC;
-	} else {
+	} 
+    else 
+    {
 		sta = ap_sta_add(hapd, addr);
-		if (sta == NULL) {
+		if (sta == NULL) 
+        {
 			hostapd_drv_sta_disassoc(hapd, addr,
 						 WLAN_REASON_DISASSOC_AP_BUSY);
 			return -1;
@@ -115,7 +126,8 @@ int hostapd_notif_assoc(struct hostapd_data *hapd, const u8 *addr,
 	sta->flags &= ~(WLAN_STA_WPS | WLAN_STA_MAYBE_WPS | WLAN_STA_WPS2);
 
 #ifdef CONFIG_P2P
-	if (elems.p2p) {
+	if (elems.p2p) 
+    {
 		wpabuf_free(sta->p2p_ie);
 		sta->p2p_ie = ieee802_11_vendor_ie_concat(req_ies, req_ies_len,
 							  P2P_IE_VENDOR_TYPE);
@@ -124,17 +136,20 @@ int hostapd_notif_assoc(struct hostapd_data *hapd, const u8 *addr,
 
 #ifdef CONFIG_HS20
 	wpabuf_free(sta->hs20_ie);
-	if (elems.hs20 && elems.hs20_len > 4) {
+	if (elems.hs20 && elems.hs20_len > 4) 
+    {
 		sta->hs20_ie = wpabuf_alloc_copy(elems.hs20 + 4,
 						 elems.hs20_len - 4);
-	} else
+	} 
+    else
 		sta->hs20_ie = NULL;
 #endif /* CONFIG_HS20 */
 
 	if (hapd->conf->wpa) {
 		if (ie == NULL || ielen == 0) {
 #ifdef CONFIG_WPS
-			if (hapd->conf->wps_state) {
+			if (hapd->conf->wps_state) 
+            {
 				wpa_printf(MSG_DEBUG, "STA did not include "
 					   "WPA/RSN IE in (Re)Association "
 					   "Request - possible WPS use");
@@ -148,13 +163,16 @@ int hostapd_notif_assoc(struct hostapd_data *hapd, const u8 *addr,
 		}
 #ifdef CONFIG_WPS
 		if (hapd->conf->wps_state && ie[0] == 0xdd && ie[1] >= 4 &&
-		    os_memcmp(ie + 2, "\x00\x50\xf2\x04", 4) == 0) {
+		    os_memcmp(ie + 2, "\x00\x50\xf2\x04", 4) == 0) 
+        {
 			struct wpabuf *wps;
 			sta->flags |= WLAN_STA_WPS;
 			wps = ieee802_11_vendor_ie_concat(ie, ielen,
 							  WPS_IE_VENDOR_TYPE);
-			if (wps) {
-				if (wps_is_20(wps)) {
+			if (wps) 
+            {
+				if (wps_is_20(wps)) 
+                {
 					wpa_printf(MSG_DEBUG, "WPS: STA "
 						   "supports WPS 2.0");
 					sta->flags |= WLAN_STA_WPS2;
@@ -168,7 +186,8 @@ int hostapd_notif_assoc(struct hostapd_data *hapd, const u8 *addr,
 		if (sta->wpa_sm == NULL)
 			sta->wpa_sm = wpa_auth_sta_init(hapd->wpa_auth,
 							sta->addr);
-		if (sta->wpa_sm == NULL) {
+		if (sta->wpa_sm == NULL) 
+        {
 			wpa_printf(MSG_ERROR, "Failed to initialize WPA state "
 				   "machine");
 			return -1;
@@ -176,30 +195,40 @@ int hostapd_notif_assoc(struct hostapd_data *hapd, const u8 *addr,
 		res = wpa_validate_wpa_ie(hapd->wpa_auth, sta->wpa_sm,
 					  ie, ielen,
 					  elems.mdie, elems.mdie_len);
-		if (res != WPA_IE_OK) {
+		if (res != WPA_IE_OK) 
+        {
 			wpa_printf(MSG_DEBUG, "WPA/RSN information element "
 				   "rejected? (res %u)", res);
 			wpa_hexdump(MSG_DEBUG, "IE", ie, ielen);
-			if (res == WPA_INVALID_GROUP) {
+			if (res == WPA_INVALID_GROUP) 
+            {
 				reason = WLAN_REASON_GROUP_CIPHER_NOT_VALID;
 				status = WLAN_STATUS_GROUP_CIPHER_NOT_VALID;
-			} else if (res == WPA_INVALID_PAIRWISE) {
+			} 
+            else if (res == WPA_INVALID_PAIRWISE) 
+            {
 				reason = WLAN_REASON_PAIRWISE_CIPHER_NOT_VALID;
 				status = WLAN_STATUS_PAIRWISE_CIPHER_NOT_VALID;
-			} else if (res == WPA_INVALID_AKMP) {
+			} 
+            else if (res == WPA_INVALID_AKMP) 
+            {
 				reason = WLAN_REASON_AKMP_NOT_VALID;
 				status = WLAN_STATUS_AKMP_NOT_VALID;
 			}
 #ifdef CONFIG_IEEE80211W
-			else if (res == WPA_MGMT_FRAME_PROTECTION_VIOLATION) {
+			else if (res == WPA_MGMT_FRAME_PROTECTION_VIOLATION) 
+            {
 				reason = WLAN_REASON_INVALID_IE;
 				status = WLAN_STATUS_INVALID_IE;
-			} else if (res == WPA_INVALID_MGMT_GROUP_CIPHER) {
+			} 
+            else if (res == WPA_INVALID_MGMT_GROUP_CIPHER) 
+            {
 				reason = WLAN_REASON_GROUP_CIPHER_NOT_VALID;
 				status = WLAN_STATUS_GROUP_CIPHER_NOT_VALID;
 			}
 #endif /* CONFIG_IEEE80211W */
-			else {
+			else 
+            {
 				reason = WLAN_REASON_INVALID_IE;
 				status = WLAN_STATUS_INVALID_IE;
 			}
@@ -239,10 +268,12 @@ int hostapd_notif_assoc(struct hostapd_data *hapd, const u8 *addr,
 #endif /* CONFIG_IEEE80211W */
 
 #ifdef CONFIG_IEEE80211R
-		if (sta->auth_alg == WLAN_AUTH_FT) {
+		if (sta->auth_alg == WLAN_AUTH_FT) 
+        {
 			status = wpa_ft_validate_reassoc(sta->wpa_sm, req_ies,
 							 req_ies_len);
-			if (status != WLAN_STATUS_SUCCESS) {
+			if (status != WLAN_STATUS_SUCCESS) 
+            {
 				if (status == WLAN_STATUS_INVALID_PMKID)
 					reason = WLAN_REASON_INVALID_IE;
 				if (status == WLAN_STATUS_INVALID_MDIE)
@@ -253,7 +284,9 @@ int hostapd_notif_assoc(struct hostapd_data *hapd, const u8 *addr,
 			}
 		}
 #endif /* CONFIG_IEEE80211R */
-	} else if (hapd->conf->wps_state) {
+	} 
+    else if (hapd->conf->wps_state) 
+    {
 #ifdef CONFIG_WPS
 		struct wpabuf *wps;
 		if (req_ies)
@@ -262,16 +295,19 @@ int hostapd_notif_assoc(struct hostapd_data *hapd, const u8 *addr,
 		else
 			wps = NULL;
 #ifdef CONFIG_WPS_STRICT
-		if (wps && wps_validate_assoc_req(wps) < 0) {
+		if (wps && wps_validate_assoc_req(wps) < 0) 
+        {
 			reason = WLAN_REASON_INVALID_IE;
 			status = WLAN_STATUS_INVALID_IE;
 			wpabuf_free(wps);
 			goto fail;
 		}
 #endif /* CONFIG_WPS_STRICT */
-		if (wps) {
+		if (wps) 
+        {
 			sta->flags |= WLAN_STA_WPS;
-			if (wps_is_20(wps)) {
+			if (wps_is_20(wps)) 
+            {
 				wpa_printf(MSG_DEBUG, "WPS: STA supports "
 					   "WPS 2.0");
 				sta->flags |= WLAN_STA_WPS2;

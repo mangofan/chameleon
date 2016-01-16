@@ -284,7 +284,8 @@ static u8 * hostapd_gen_probe_resp(struct hostapd_data *hapd,
 	pos = hostapd_eid_wmm(hapd, pos);
 
 #ifdef CONFIG_WPS
-	if (hapd->conf->wps_state && hapd->wps_probe_resp_ie) {
+	if (hapd->conf->wps_state && hapd->wps_probe_resp_ie)
+    {
 		os_memcpy(pos, wpabuf_head(hapd->wps_probe_resp_ie),
 			  wpabuf_len(hapd->wps_probe_resp_ie));
 		pos += wpabuf_len(hapd->wps_probe_resp_ie);
@@ -293,7 +294,8 @@ static u8 * hostapd_gen_probe_resp(struct hostapd_data *hapd,
 
 #ifdef CONFIG_P2P
 	if ((hapd->conf->p2p & P2P_ENABLED) && is_p2p &&
-	    hapd->p2p_probe_resp_ie) {
+	    hapd->p2p_probe_resp_ie) 
+    {
 		os_memcpy(pos, wpabuf_head(hapd->p2p_probe_resp_ie),
 			  wpabuf_len(hapd->p2p_probe_resp_ie));
 		pos += wpabuf_len(hapd->p2p_probe_resp_ie);
@@ -309,7 +311,8 @@ static u8 * hostapd_gen_probe_resp(struct hostapd_data *hapd,
 	pos = hostapd_eid_hs20_indication(hapd, pos);
 #endif /* CONFIG_HS20 */
 
-	if (hapd->conf->vendor_elements) {
+	if (hapd->conf->vendor_elements) 
+    {
 		os_memcpy(pos, wpabuf_head(hapd->conf->vendor_elements),
 			  wpabuf_len(hapd->conf->vendor_elements));
 		pos += wpabuf_len(hapd->conf->vendor_elements);
@@ -320,7 +323,8 @@ static u8 * hostapd_gen_probe_resp(struct hostapd_data *hapd,
 }
 
 
-enum ssid_match_result {
+enum ssid_match_result 
+{
 	NO_SSID_MATCH,
 	EXACT_SSID_MATCH,
 	WILDCARD_SSID_MATCH
@@ -348,7 +352,8 @@ static enum ssid_match_result ssid_match(struct hostapd_data *hapd,
 
 	pos = ssid_list;
 	end = ssid_list + ssid_list_len;
-	while (pos + 1 <= end) {
+	while (pos + 1 <= end) 
+    {
 		if (pos + 2 + pos[1] > end)
 			break;
 		if (pos[1] == 0)
@@ -391,13 +396,15 @@ void handle_probe_req(struct hostapd_data *hapd,
 	if (!hapd->iconf->send_probe_response)
 		return;
 
-	if (ieee802_11_parse_elems(ie, ie_len, &elems, 0) == ParseFailed) {
+	if (ieee802_11_parse_elems(ie, ie_len, &elems, 0) == ParseFailed) 
+    {
 		wpa_printf(MSG_DEBUG, "Could not parse ProbeReq from " MACSTR,
 			   MAC2STR(mgmt->sa));
 		return;
 	}
 
-	if ((!elems.ssid || !elems.supp_rates)) {
+	if ((!elems.ssid || !elems.supp_rates)) 
+    {
 		wpa_printf(MSG_DEBUG, "STA " MACSTR " sent probe request "
 			   "without SSID or supported rates element",
 			   MAC2STR(mgmt->sa));
@@ -405,10 +412,12 @@ void handle_probe_req(struct hostapd_data *hapd,
 	}
 
 #ifdef CONFIG_P2P
-	if (hapd->p2p && elems.wps_ie) {
+	if (hapd->p2p && elems.wps_ie) 
+    {
 		struct wpabuf *wps;
 		wps = ieee802_11_vendor_ie_concat(ie, ie_len, WPS_DEV_OUI_WFA);
-		if (wps && !p2p_group_match_dev_type(hapd->p2p_group, wps)) {
+		if (wps && !p2p_group_match_dev_type(hapd->p2p_group, wps)) 
+        {
 			wpa_printf(MSG_MSGDUMP, "P2P: Ignore Probe Request "
 				   "due to mismatch with Requested Device "
 				   "Type");
@@ -418,10 +427,12 @@ void handle_probe_req(struct hostapd_data *hapd,
 		wpabuf_free(wps);
 	}
 
-	if (hapd->p2p && elems.p2p) {
+	if (hapd->p2p && elems.p2p) 
+    {
 		struct wpabuf *p2p;
 		p2p = ieee802_11_vendor_ie_concat(ie, ie_len, P2P_IE_VENDOR_TYPE);
-		if (p2p && !p2p_group_match_dev_id(hapd->p2p_group, p2p)) {
+		if (p2p && !p2p_group_match_dev_id(hapd->p2p_group, p2p)) 
+        {
 			wpa_printf(MSG_MSGDUMP, "P2P: Ignore Probe Request "
 				   "due to mismatch with Device ID");
 			wpabuf_free(p2p);
@@ -432,7 +443,8 @@ void handle_probe_req(struct hostapd_data *hapd,
 #endif /* CONFIG_P2P */
 
 	if (hapd->conf->ignore_broadcast_ssid && elems.ssid_len == 0 &&
-	    elems.ssid_list_len == 0) {
+	    elems.ssid_list_len == 0) 
+    {
 		wpa_printf(MSG_MSGDUMP, "Probe Request from " MACSTR " for "
 			   "broadcast SSID ignored", MAC2STR(mgmt->sa));
 		return;
@@ -444,7 +456,8 @@ void handle_probe_req(struct hostapd_data *hapd,
 	if ((hapd->conf->p2p & P2P_GROUP_OWNER) &&
 	    elems.ssid_len == P2P_WILDCARD_SSID_LEN &&
 	    os_memcmp(elems.ssid, P2P_WILDCARD_SSID,
-		      P2P_WILDCARD_SSID_LEN) == 0) {
+		      P2P_WILDCARD_SSID_LEN) == 0) 
+    {
 		/* Process P2P Wildcard SSID like Wildcard SSID */
 		elems.ssid_len = 0;
 	}
@@ -452,11 +465,15 @@ void handle_probe_req(struct hostapd_data *hapd,
 
 	res = ssid_match(hapd, elems.ssid, elems.ssid_len,
 			 elems.ssid_list, elems.ssid_list_len, mgmt->sa);
-	if (res != NO_SSID_MATCH) {
+	if (res != NO_SSID_MATCH) 
+    {
 		if (sta)
 			sta->ssid_probe = &hapd->conf->ssid;
-	} else {
-		if (!(mgmt->da[0] & 0x01)) {
+	} 
+    else 
+    {
+		if (!(mgmt->da[0] & 0x01)) 
+        {
 			char ssid_txt[33];
 			ieee802_11_print_ssid(ssid_txt, elems.ssid,
 					      elems.ssid_len);
@@ -470,10 +487,12 @@ void handle_probe_req(struct hostapd_data *hapd,
 	}
 
 #ifdef CONFIG_INTERWORKING
-	if (elems.interworking && elems.interworking_len >= 1) {
+	if (elems.interworking && elems.interworking_len >= 1) 
+    {
 		u8 ant = elems.interworking[0] & 0x0f;
 		if (ant != INTERWORKING_ANT_WILDCARD &&
-		    ant != hapd->conf->access_network_type) {
+		    ant != hapd->conf->access_network_type) 
+        {
 			wpa_printf(MSG_MSGDUMP, "Probe Request from " MACSTR
 				   " for mismatching ANT %u ignored",
 				   MAC2STR(mgmt->sa), ant);
@@ -482,14 +501,16 @@ void handle_probe_req(struct hostapd_data *hapd,
 	}
 
 	if (elems.interworking &&
-	    (elems.interworking_len == 7 || elems.interworking_len == 9)) {
+	    (elems.interworking_len == 7 || elems.interworking_len == 9)) 
+    {
 		const u8 *hessid;
 		if (elems.interworking_len == 7)
 			hessid = elems.interworking + 1;
 		else
 			hessid = elems.interworking + 1 + 2;
 		if (!is_broadcast_ether_addr(hessid) &&
-		    os_memcmp(hessid, hapd->conf->hessid, ETH_ALEN) != 0) {
+		    os_memcmp(hessid, hapd->conf->hessid, ETH_ALEN) != 0) 
+        {
 			wpa_printf(MSG_MSGDUMP, "Probe Request from " MACSTR
 				   " for mismatching HESSID " MACSTR
 				   " ignored",
@@ -620,14 +641,19 @@ void ieee802_11_set_beacon(struct hostapd_data *hapd)
 
 	/* SSID */
 	*pos++ = WLAN_EID_SSID;
-	if (hapd->conf->ignore_broadcast_ssid == 2) {
+	if (hapd->conf->ignore_broadcast_ssid == 2) 
+    {
 		/* clear the data, but keep the correct length of the SSID */
 		*pos++ = hapd->conf->ssid.ssid_len;
 		os_memset(pos, 0, hapd->conf->ssid.ssid_len);
 		pos += hapd->conf->ssid.ssid_len;
-	} else if (hapd->conf->ignore_broadcast_ssid) {
+	} 
+    else if (hapd->conf->ignore_broadcast_ssid) 
+    {
 		*pos++ = 0; /* empty SSID */
-	} else {
+	} 
+    else 
+    {
 		*pos++ = hapd->conf->ssid.ssid_len;
 		os_memcpy(pos, hapd->conf->ssid.ssid,
 			  hapd->conf->ssid.ssid_len);
@@ -681,7 +707,8 @@ void ieee802_11_set_beacon(struct hostapd_data *hapd)
 	tailpos = hostapd_eid_wmm(hapd, tailpos);
 
 #ifdef CONFIG_WPS
-	if (hapd->conf->wps_state && hapd->wps_beacon_ie) {
+	if (hapd->conf->wps_state && hapd->wps_beacon_ie) 
+    {
 		os_memcpy(tailpos, wpabuf_head(hapd->wps_beacon_ie),
 			  wpabuf_len(hapd->wps_beacon_ie));
 		tailpos += wpabuf_len(hapd->wps_beacon_ie);
@@ -689,7 +716,8 @@ void ieee802_11_set_beacon(struct hostapd_data *hapd)
 #endif /* CONFIG_WPS */
 
 #ifdef CONFIG_P2P
-	if ((hapd->conf->p2p & P2P_ENABLED) && hapd->p2p_beacon_ie) {
+	if ((hapd->conf->p2p & P2P_ENABLED) && hapd->p2p_beacon_ie) 
+    {
 		os_memcpy(tailpos, wpabuf_head(hapd->p2p_beacon_ie),
 			  wpabuf_len(hapd->p2p_beacon_ie));
 		tailpos += wpabuf_len(hapd->p2p_beacon_ie);
